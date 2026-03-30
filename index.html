@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AzureShop — P1 CNII 2026</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>⚡ AzureShop</h1>
+      <span>E-Commerce DSM · FATEC Cotia</span>
+      <span class="logo-badge">Azure Powered</span>
+    </div>
+    <nav>
+      <div class="nav-label">Menu Principal</div>
+      <button class="nav-item active" onclick="navegarPara('dashboard')">
+        <span class="icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item" onclick="navegarPara('produtos')">
+        <span class="icon">📦</span> Produtos
+      </button>
+      <button class="nav-item" onclick="navegarPara('clientes')">
+        <span class="icon">👥</span> Clientes
+      </button>
+      <button class="nav-item" onclick="navegarPara('pedidos')">
+        <span class="icon">🛒</span> Pedidos
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      stocompnuvem2p1<br>
+      Blob + Table Storage
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-titulo">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="carrinho-btn" onclick="PedidosUI.abrirCarrinho()" title="Ver carrinho">
+          🛒
+          <span id="carrinho-badge"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============= PAGE: DASHBOARD ============= -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">📦</span>
+          <span class="stat-label">Produtos</span>
+          <span class="stat-value" id="stat-produtos">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">👥</span>
+          <span class="stat-label">Clientes</span>
+          <span class="stat-value" id="stat-clientes">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">🛒</span>
+          <span class="stat-label">Pedidos</span>
+          <span class="stat-value" id="stat-pedidos">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">💰</span>
+          <span class="stat-label">Faturamento</span>
+          <span class="stat-value" id="stat-faturamento" style="font-size:20px">—</span>
+        </div>
+      </div>
+      <div class="section-header">
+        <h2>Produtos em Destaque</h2>
+        <button class="btn btn-outline" onclick="navegarPara('produtos')">Ver todos</button>
+      </div>
+      <div class="produtos-grid" id="dashboard-grid">
+        <div class="loading">Carregando...</div>
+      </div>
+    </div>
+
+    <!-- ============= PAGE: PRODUTOS ============= -->
+    <div class="page" id="page-produtos">
+      <div class="section-header">
+        <h2>Gerenciamento de Produtos</h2>
+        <button class="btn btn-primary" onclick="ProdutosUI.abrirModal()">+ Novo Produto</button>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filtros">
+        <div class="form-group">
+          <label>Marca</label>
+          <input type="text" id="filtro-marca" placeholder="ex: Nike">
+        </div>
+        <div class="form-group">
+          <label>Modelo</label>
+          <input type="text" id="filtro-modelo" placeholder="ex: Air Max">
+        </div>
+        <div class="form-group">
+          <label>Preço mín. (R$)</label>
+          <input type="number" id="filtro-preco-min" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Preço máx. (R$)</label>
+          <input type="number" id="filtro-preco-max" placeholder="9999">
+        </div>
+        <div class="form-group" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" onclick="ProdutosUI.filtrar()">Filtrar</button>
+        </div>
+        <div class="form-group" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <button class="btn btn-outline" onclick="limparFiltros()">Limpar</button>
+        </div>
+      </div>
+
+      <div class="produtos-grid" id="produtos-grid">
+        <div class="loading">Carregando...</div>
+      </div>
+    </div>
+
+    <!-- ============= PAGE: CLIENTES ============= -->
+    <div class="page" id="page-clientes">
+      <div class="section-header">
+        <h2>Gerenciamento de Clientes</h2>
+        <button class="btn btn-primary" onclick="ClientesUI.abrirModal()">+ Novo Cliente</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th>CPF</th>
+              <th>Cidade</th>
+              <th>Cadastro</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="clientes-tbody">
+            <tr><td colspan="7" class="loading">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============= PAGE: PEDIDOS ============= -->
+    <div class="page" id="page-pedidos">
+      <div class="section-header">
+        <h2>Pedidos Realizados</h2>
+        <button class="btn btn-primary" onclick="PedidosUI.abrirCarrinho()">🛒 Novo Pedido</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>Itens</th>
+              <th>Total</th>
+              <th>Pagamento</th>
+              <th>Entrega</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="pedidos-tbody">
+            <tr><td colspan="7" class="loading">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ===================== MODAL: PRODUTO ===================== -->
+<div class="modal-overlay" id="modal-produto">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-produto-titulo">Novo Produto</h3>
+      <button class="modal-close" onclick="ProdutosUI.fecharModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-produto">
+        <input type="hidden" id="produto-id">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Marca *</label>
+            <input type="text" id="produto-marca" placeholder="ex: Samsung" required>
+          </div>
+          <div class="form-group">
+            <label>Modelo *</label>
+            <input type="text" id="produto-modelo" placeholder="ex: Galaxy S24" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea id="produto-descricao" placeholder="Descrição do produto..."></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Preço (R$) *</label>
+            <input type="number" id="produto-preco" step="0.01" min="0" placeholder="0.00" required>
+          </div>
+          <div class="form-group">
+            <label>Quantidade *</label>
+            <input type="number" id="produto-quantidade" min="0" placeholder="0" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Foto do Produto</label>
+          <input type="file" id="produto-foto" accept="image/*" onchange="previewFoto(this)">
+          <img id="produto-foto-preview" class="form-foto-preview" style="display:none" alt="Preview">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="ProdutosUI.fecharModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btn-salvar-produto" onclick="ProdutosUI.salvar()">Salvar Produto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: CLIENTE ===================== -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-cliente-titulo">Novo Cliente</h3>
+      <button class="modal-close" onclick="ClientesUI.fecharModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-cliente">
+        <input type="hidden" id="cliente-id">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome *</label>
+            <input type="text" id="cliente-nome" placeholder="Nome completo" required>
+          </div>
+          <div class="form-group">
+            <label>E-mail *</label>
+            <input type="email" id="cliente-email" placeholder="email@exemplo.com" required>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Telefone</label>
+            <input type="tel" id="cliente-telefone" placeholder="(11) 99999-9999">
+          </div>
+          <div class="form-group">
+            <label>CPF</label>
+            <input type="text" id="cliente-cpf" placeholder="000.000.000-00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Endereço</label>
+          <input type="text" id="cliente-endereco" placeholder="Rua, número, bairro">
+        </div>
+        <div class="form-group">
+          <label>Cidade</label>
+          <input type="text" id="cliente-cidade" placeholder="Cidade / UF">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="ClientesUI.fecharModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btn-salvar-cliente" onclick="ClientesUI.salvar()">Salvar Cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: HISTÓRICO ===================== -->
+<div class="modal-overlay" id="modal-historico">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>Histórico — <span id="historico-cliente-nome"></span></h3>
+      <button class="modal-close" onclick="ClientesUI.fecharHistorico()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="historico-lista"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="ClientesUI.fecharHistorico()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: CARRINHO ===================== -->
+<div class="modal-overlay" id="modal-carrinho">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>🛒 Carrinho</h3>
+      <button class="modal-close" onclick="PedidosUI.fecharCarrinho()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="carrinho-lista"></div>
+      <div class="carrinho-total-bar">
+        <span>Total</span>
+        <span id="carrinho-total">R$ 0,00</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="PedidosUI.fecharCarrinho()">Continuar Comprando</button>
+      <button class="btn btn-success btn-lg" onclick="PedidosUI.abrirCheckout()">Finalizar Pedido →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: CHECKOUT ===================== -->
+<div class="modal-overlay" id="modal-checkout">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✅ Finalizar Pedido</h3>
+      <button class="modal-close" onclick="PedidosUI.fecharCheckout()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="checkout-resumo"></div>
+
+      <div class="form-group">
+        <label>Cliente *</label>
+        <select id="checkout-cliente">
+          <option value="">Selecione o cliente</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Forma de Pagamento *</label>
+        <select id="checkout-pagamento">
+          <option value="">Selecione</option>
+          <option value="Cartão de Crédito">Cartão de Crédito</option>
+          <option value="Cartão de Débito">Cartão de Débito</option>
+          <option value="PIX">PIX</option>
+          <option value="Boleto">Boleto</option>
+          <option value="Dinheiro">Dinheiro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Forma de Entrega *</label>
+        <select id="checkout-entrega">
+          <option value="">Selecione</option>
+          <option value="Retirada na Loja">Retirada na Loja</option>
+          <option value="Entrega Expressa">Entrega Expressa</option>
+          <option value="PAC">PAC</option>
+          <option value="SEDEX">SEDEX</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="PedidosUI.fecharCheckout()">Cancelar</button>
+      <button class="btn btn-success btn-lg" id="btn-finalizar" onclick="PedidosUI.finalizar()">Confirmar Pedido ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SCRIPTS ===================== -->
+<script src="assets/js/azure.js"></script>
+<script src="assets/js/produtos.js"></script>
+<script src="assets/js/clientes.js"></script>
+<script src="assets/js/pedidos.js"></script>
+<script>
+  // ============= NAVEGAÇÃO =============
+  const paginaTitulos = {
+    dashboard: 'Dashboard',
+    produtos: 'Produtos',
+    clientes: 'Clientes',
+    pedidos: 'Pedidos'
+  };
+
+  function navegarPara(pagina) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(`page-${pagina}`).classList.add('active');
+    document.querySelectorAll('.nav-item')[['dashboard','produtos','clientes','pedidos'].indexOf(pagina)].classList.add('active');
+    document.getElementById('topbar-titulo').textContent = paginaTitulos[pagina];
+
+    if (pagina === 'produtos') ProdutosUI.carregar();
+    if (pagina === 'clientes') ClientesUI.carregar();
+    if (pagina === 'pedidos') PedidosUI.carregarLista();
+    if (pagina === 'dashboard') carregarDashboard();
+  }
+
+  // ============= DASHBOARD =============
+  async function carregarDashboard() {
+    try {
+      const [produtos, clientes, pedidos] = await Promise.all([
+        TableService.query(AZURE.tables.produtos),
+        TableService.query(AZURE.tables.clientes),
+        TableService.query(AZURE.tables.pedidos)
+      ]);
+      document.getElementById('stat-produtos').textContent = produtos.length;
+      document.getElementById('stat-clientes').textContent = clientes.length;
+      document.getElementById('stat-pedidos').textContent = pedidos.length;
+      const fat = pedidos.reduce((s, p) => s + (parseFloat(p.Total) || 0), 0);
+      document.getElementById('stat-faturamento').textContent = formatCurrency(fat);
+
+      const grid = document.getElementById('dashboard-grid');
+      if (!produtos.length) { grid.innerHTML = '<div class="empty">Nenhum produto ainda.</div>'; return; }
+      grid.innerHTML = produtos.slice(0, 6).map(Produtos.renderCard).join('');
+    } catch (e) {
+      console.error('Dashboard error:', e);
+    }
+  }
+
+  // ============= UTILS =============
+  function limparFiltros() {
+    ['filtro-marca','filtro-modelo','filtro-preco-min','filtro-preco-max'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    ProdutosUI.carregar();
+  }
+
+  function previewFoto(input) {
+    const preview = document.getElementById('produto-foto-preview');
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // ============= INIT =============
+  window.addEventListener('DOMContentLoaded', () => {
+    carregarDashboard();
+  });
+</script>
+
+</body>
+</html>
