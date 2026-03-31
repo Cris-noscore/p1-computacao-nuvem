@@ -6,7 +6,7 @@ const AZURE = {
   sasToken: 'sv=2024-11-04&ss=bt&srt=sco&sp=rwdlacuiytfx&se=2026-04-20T06:27:11Z&st=2026-03-30T22:12:11Z&spr=https&sig=7cD%2Fck%2BAQOAuUVgfTttGvZYPjA2GarxNhuOD2avf18w%3D',
   blobBase: 'https://stocompnuvem2p1.blob.core.windows.net',
   tableBase: 'https://stocompnuvem2p1.table.core.windows.net',
-  containers: { produtos: 'produtos', imagens: 'imagens' },
+  containers: { produtos: 'cristianosilveira', imagens: 'cristianosilveira' },
   tables: { produtos: 'Produtos', clientes: 'Clientes', pedidos: 'Pedidos' }
 };
 

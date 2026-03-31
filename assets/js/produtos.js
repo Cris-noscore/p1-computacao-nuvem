@@ -3,16 +3,14 @@
 // =============================================
 const Produtos = {
   TABLE: AZURE.tables.produtos,
-  PARTITION: 'Produto',
+  PARTITION: 'Produto-Cris',
 
   async listar(filtros = {}) {
-    let filter = '';
-    const parts = [];
-    if (filtros.marca) parts.push(`Marca eq '${filtros.marca}'`);
-    if (filtros.modelo) parts.push(`substringof('${filtros.modelo}', Modelo)`);
-    if (filtros.precoMin) parts.push(`Preco ge ${filtros.precoMin}`);
-    if (filtros.precoMax) parts.push(`Preco le ${filtros.precoMax}`);
-    if (parts.length) filter = parts.join(' and ');
+    let filter = `PartitionKey eq '${this.PARTITION}'`;
+    if (filtros.marca) filter += ` and Marca eq '${filtros.marca}'`;
+    if (filtros.modelo) filter += ` and substringof('${filtros.modelo}', Modelo)`;
+    if (filtros.precoMin) filter += ` and Preco ge ${filtros.precoMin}`;
+    if (filtros.precoMax) filter += ` and Preco le ${filtros.precoMax}`;
     return await TableService.query(this.TABLE, filter);
   },
 
