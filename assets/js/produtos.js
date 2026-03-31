@@ -3,7 +3,7 @@
 // =============================================
 const Produtos = {
   TABLE: AZURE.tables.produtos,
-  PARTITION: 'Produto-Cris',
+  PARTITION: 'Produto',
 
   async listar(filtros = {}) {
     let filter = `PartitionKey eq '${this.PARTITION}'`;

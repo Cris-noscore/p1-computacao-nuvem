@@ -3,7 +3,7 @@
 // =============================================
 const Clientes = {
   TABLE: AZURE.tables.clientes,
-  PARTITION: 'Cliente-Cris',
+  PARTITION: 'Cliente',
 
   async listar() {
     return await TableService.query(this.TABLE, `PartitionKey eq '${this.PARTITION}'`);
