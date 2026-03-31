@@ -7,7 +7,7 @@ const AZURE = {
   blobBase: 'https://stocompnuvem2p1.blob.core.windows.net',
   tableBase: 'https://stocompnuvem2p1.table.core.windows.net',
   containers: { produtos: 'cristianosilveira', imagens: 'cristianosilveira' },
-  tables: { produtos: 'Produtos', clientes: 'Clientes', pedidos: 'Pedidos' }
+  tables: { produtos: 'CristianoP', clientes: 'CristianoC', pedidos: 'CristianoO' }
 };
 
 // =============================================
