@@ -3,10 +3,10 @@
 // =============================================
 const Clientes = {
   TABLE: AZURE.tables.clientes,
-  PARTITION: 'Cliente',
+  PARTITION: 'Cliente-Cris',
 
   async listar() {
-    return await TableService.query(this.TABLE);
+    return await TableService.query(this.TABLE, `PartitionKey eq '${this.PARTITION}'`);
   },
 
   async buscarPorId(rowKey) {
@@ -125,7 +125,7 @@ const ClientesUI = {
     document.getElementById('historico-lista').innerHTML = '<div class="loading">Carregando...</div>';
     modal.classList.add('active');
     try {
-      const pedidos = await TableService.query(AZURE.tables.pedidos, `ClienteId eq '${clienteId}'`);
+      const pedidos = await TableService.query(AZURE.tables.pedidos, `PartitionKey eq 'Pedido-Cris' and ClienteId eq '${clienteId}'`);
       if (!pedidos.length) {
         document.getElementById('historico-lista').innerHTML = '<div class="empty">Nenhum pedido encontrado.</div>';
         return;
