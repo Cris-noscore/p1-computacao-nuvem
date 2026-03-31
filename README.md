@@ -57,10 +57,10 @@ O **AzureShop** é uma aplicação web de e-commerce completa, desenvolvida com 
 ┌─────────▼──────────┐   ┌─────────▼──────────┐
 │  Azure Blob Storage │   │ Azure Table Storage │
 │                     │   │                     │
-│  Containers:        │   │  Tabelas:           │
-│  • produtos/        │   │  • Produtos         │
-│  • imagens/         │   │  • Clientes         │
-│                     │   │  • Pedidos          │
+│  Container:         │   │  Tabelas:           │
+│  • cristianosilveira│   │  • CristianoP       │
+│    (imagens)        │   │  • CristianoC       │
+│                     │   │  • CristianoO       │
 └─────────────────────┘   └─────────────────────┘
                        │
             ┌──────────▼──────────┐
@@ -76,15 +76,21 @@ O **AzureShop** é uma aplicação web de e-commerce completa, desenvolvida com 
 | Recurso | Tipo | Finalidade |
 |---------|------|-----------|
 | `stocompnuvem2p1` | Storage Account | Conta principal de armazenamento |
-| `produtos` | Blob Container | Armazenamento de fotos dos produtos |
-| `imagens` | Blob Container | Container reserva para imagens gerais |
-| `Produtos` | Table Storage | Cadastro de produtos |
-| `Clientes` | Table Storage | Cadastro de clientes |
-| `Pedidos` | Table Storage | Registro de pedidos |
+| `cristianosilveira` | Blob Container | Armazenamento exclusivo de fotos dos produtos |
+| `CristianoP` | Table Storage | Cadastro de produtos (exclusivo) |
+| `CristianoC` | Table Storage | Cadastro de clientes (exclusivo) |
+| `CristianoO` | Table Storage | Registro de pedidos (exclusivo) |
 
 ### 🔐 Autenticação SAS
 
 Toda comunicação com o Azure é feita via **SAS Token (Shared Access Signature)**, permitindo acesso seguro e temporário aos recursos sem expor as chaves principais.
+
+### 🏷️ Isolamento de Dados
+
+Como a conta Azure é compartilhada entre todos os alunos da turma, foi implementada uma estratégia de isolamento em duas camadas:
+
+1. **Container exclusivo** `cristianosilveira` no Blob Storage — imagens salvas separadamente dos demais alunos
+2. **Tabelas exclusivas** `CristianoP`, `CristianoC`, `CristianoO` — dados completamente isolados dos demais alunos
 
 ### 🌐 CORS
 
@@ -103,7 +109,7 @@ MaxAgeInSeconds: 86400
 
 ### 📦 Gerenciamento de Produtos (3,0 pontos)
 - ✅ Cadastro com marca, modelo, descrição, preço e quantidade
-- ✅ Upload de imagem para o Azure Blob Storage com URL + SAS
+- ✅ Upload de imagem para o Azure Blob Storage (`cristianosilveira`) com URL + SAS
 - ✅ Edição e exclusão de produtos
 - ✅ Busca por marca, modelo e faixa de preço
 
@@ -127,13 +133,13 @@ MaxAgeInSeconds: 86400
 - ✅ Notificações (toasts) de feedback
 
 ### ☁️ Azure Blob Storage (3,0 pontos)
-- ✅ Upload de imagens direto do browser para o Blob
-- ✅ Containers `produtos` e `imagens` criados via REST API
-- ✅ URLs únicas com timestamp + hash aleatório
+- ✅ Upload de imagens direto do browser para o container `cristianosilveira`
+- ✅ Container criado via REST API com `curl`
+- ✅ URLs únicas com timestamp + hash aleatório + SAS Token
 - ✅ CORS configurado via terminal
 
 ### 🗄️ Azure Table Storage (3,0 pontos)
-- ✅ Tabelas criadas via REST API
+- ✅ Tabelas `CristianoP`, `CristianoC`, `CristianoO` criadas via REST API
 - ✅ CRUD completo (Create, Read, Update, Delete)
 - ✅ Filtros OData ($filter)
 - ✅ CORS configurado via terminal
@@ -156,7 +162,7 @@ p1-computacao-nuvem/
 └── assets/
     ├── css/
     │   └── style.css       # Estilos (tema dark, responsivo)
-    ├── img/                # Imagens dos produtos
+    ├── img/                # Imagens dos produtos (repositório)
     │   ├── play.jpg
     │   ├── xbox.webp
     │   ├── switch.jpg
@@ -166,10 +172,10 @@ p1-computacao-nuvem/
     │   ├── Kishi V2 Pro.webp
     │   └── Joy-Con Neon.webp
     └── js/
-        ├── azure.js        # Configuração Azure + helpers Blob/Table
-        ├── produtos.js     # Módulo de produtos + upload de imagens
-        ├── clientes.js     # Módulo de clientes + histórico
-        └── pedidos.js      # Módulo de pedidos + carrinho + checkout
+        ├── azure.js        # Config Azure + helpers Blob/Table
+        ├── produtos.js     # Módulo produtos → tabela CristianoP
+        ├── clientes.js     # Módulo clientes → tabela CristianoC
+        └── pedidos.js      # Módulo pedidos → tabela CristianoO
 ```
 
 ---
@@ -180,19 +186,21 @@ Todos os recursos Azure foram criados via **linha de comando (curl)**:
 
 ```bash
 # 1. Validação das chaves SAS → 200 ✅
-curl -s -o /dev/null -w "%{http_code}" "https://stocompnuvem2p1.blob.core.windows.net/?comp=list&..."
+curl -s -o /dev/null -w "%{http_code}" \
+  "https://stocompnuvem2p1.blob.core.windows.net/?comp=list&..."
 
-# 2. Criação dos containers Blob → 201 ✅
-curl -X PUT -H "Content-Length: 0" "https://.../produtos?restype=container&..."
-curl -X PUT -H "Content-Length: 0" "https://.../imagens?restype=container&..."
+# 2. Criação do container exclusivo → 201 ✅
+curl -X PUT -H "Content-Length: 0" \
+  "https://.../cristianosilveira?restype=container&..."
 
-# 3. Criação das tabelas → 201 ✅
-curl -X POST -d '{"TableName":"Produtos"}' "https://.../Tables?..."
-curl -X POST -d '{"TableName":"Clientes"}' "https://.../Tables?..."
-curl -X POST -d '{"TableName":"Pedidos"}' "https://.../Tables?..."
+# 3. Criação das tabelas exclusivas → 201 ✅
+curl -X POST -d '{"TableName":"CristianoP"}' "https://.../Tables?..."
+curl -X POST -d '{"TableName":"CristianoC"}' "https://.../Tables?..."
+curl -X POST -d '{"TableName":"CristianoO"}' "https://.../Tables?..."
 
 # 4. CORS Blob + Table Storage → 202 ✅
-curl -X PUT -H "Content-Type: application/xml" -d '<StorageServiceProperties>...' \
+curl -X PUT -H "Content-Type: application/xml" \
+  -d '<StorageServiceProperties>...' \
   "https://.../?restype=service&comp=properties&..."
 
 # 5. GitHub Pages → publicado ✅
@@ -204,11 +212,12 @@ gh api repos/Cris-noscore/p1-computacao-nuvem/pages \
 
 ## 📊 Dados de Teste
 
-| Entidade | Quantidade |
-|----------|-----------|
-| Produtos | 8 (com imagens no Blob Storage) |
-| Clientes | 10 |
-| Pedidos | 12 (distribuídos entre os clientes) |
+| Entidade | Quantidade | Tabela Azure |
+|----------|-----------|--------------|
+| Produtos | 8 (com imagens no Blob `cristianosilveira`) | `CristianoP` |
+| Clientes | 10 | `CristianoC` |
+| Pedidos | 12 | `CristianoO` |
+| **Faturamento total** | **R$ 43.997,80** | — |
 
 ---
 
@@ -219,6 +228,8 @@ gh api repos/Cris-noscore/p1-computacao-nuvem/pages \
 | 🌐 Aplicação publicada | [https://cris-noscore.github.io/p1-computacao-nuvem/](https://cris-noscore.github.io/p1-computacao-nuvem/) |
 | 📁 Repositório GitHub | [https://github.com/Cris-noscore/p1-computacao-nuvem](https://github.com/Cris-noscore/p1-computacao-nuvem) |
 | ☁️ Storage Account | `stocompnuvem2p1` |
+| 📦 Blob Container | `cristianosilveira` |
+| 🗄️ Tables | `CristianoP` · `CristianoC` · `CristianoO` |
 
 ---
 
